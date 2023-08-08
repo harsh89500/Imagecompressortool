@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Resizer</title>
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+input[type="file"] {
+    margin-bottom: 10px;
+}
+
+.options {
+    margin-bottom: 15px;
+}
+
+label, select, input[type="number"] {
+    display: block;
+    margin-bottom: 5px;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#result {
+    margin-top: 15px;
+}
+
+
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Resizer</h1>
+        <input type="file" id="imageInput" accept="image/*">
+        <div class="options">
+            <label for="width">Width:</label>
+            <input type="number" id="width" min="1">
+            <label for="height">Height:</label>
+            <input type="number" id="height" min="1">
+            <label for="format">Format:</label>
+            <select id="format">
+                <option value="jpg">JPG</option>
+                <option value="jpeg">JPEG</option>
+                <option value="png">PNG</option>
+                <option value="tiff">TIFF</option>
+                <option value="gif">GIF</option>
+                <option value="psd">PSD</option>
+                <option value="pdf">PDF</option>
+                <option value="eps">EPS</option>
+            </select>
+        </div>
+        <button id="resizeButton">Resize and Download</button>
+        <div id="result"></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('imageInput');
+    const widthInput = document.getElementById('width');
+    const heightInput = document.getElementById('height');
+    const formatSelect = document.getElementById('format');
+    const resizeButton = document.getElementById('resizeButton');
+    const resultDiv = document.getElementById('result');
+
+    resizeButton.addEventListener('click', function() {
+        const file = imageInput.files[0];
+        const width = parseInt(widthInput.value);
+        const height = parseInt(heightInput.value);
+        const format = formatSelect.value;
+
+        if (!file || isNaN(width) || isNaN(height)) {
+            resultDiv.innerHTML = '<p>Please select an image and provide valid width and height.</p>';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(function(blob) {
+                    saveAs(blob, `resized_image.${format}`);
+                }, `image/${format}`);
+            };
+        };
+        reader.readAsDataURL(file);
+    });
+});
+
+</script>
+</body>
+</html>
